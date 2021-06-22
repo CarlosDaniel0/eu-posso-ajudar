@@ -5,7 +5,6 @@ import { FaSearch } from 'react-icons/fa'
 import { findClass } from '../utils/findClass'
 import axios from 'axios'
 import Link from 'next/link'
-import Button from '../components/Style/Button'
 
 const Busca = () => {
     //const { data, err} = useSWR('', fetcher)
@@ -76,12 +75,12 @@ const Busca = () => {
         <Complement text='Buscar' />
         <div className='w-full inline-block pt-4'>
             <div className='relative md:mx-auto md:w-1/2 mx-4'>
-                <div className='search divide-x-1 p-1 border border-black border-black rounded-t-2xl rounded-b-2xl'>
+                <div className='search divide-x-1 p-1 border border-black rounded-t-2xl rounded-b-2xl'>
                     <input name='search' className='outline-none w-4/6 sm:w-5/6 ml-4' placeholder='Buscar...' onChange={onChangeSearch} />
                     <FaSearch className='ml-2 inline-block cursor-pointer' onClick={goSearch} />
                 </div>
                 {/* {JSON.stringify(response)} */}
-                <ul className='peek hidden px-4 absolute z-10 pb-4 bg-white block w-full transform -translate-y-1 border-black rounded-b-2xl border-t-0 border'>
+                <ul className='peek hidden px-4 absolute z-10 pb-4 bg-white w-full transform -translate-y-1 border-black rounded-b-2xl border-t-0 border'>
                     <hr className='border-dashed z-20 mr-2 my-1 border-black'/>
                     {names.map(e => {
                         let elementSplit = search.search != "" ? e.split(search.search) : search.search
@@ -99,9 +98,8 @@ const Busca = () => {
                     })}
                 </ul>
             </div>
-            <Button title='Teste' />
         </div>
-        <div className='w-full mt-4 inline-block md:flex md:grid md:grid-cols-3 gap-4 p-4'>
+        <div className='w-full mt-4 inline-block md:flex md:grid-cols-3 gap-4 p-4'>
             
             {data.map(e => {
                 return (
