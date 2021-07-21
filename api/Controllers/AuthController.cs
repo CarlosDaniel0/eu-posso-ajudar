@@ -1,3 +1,4 @@
+using BC = BCrypt.Net.BCrypt;
 using api.Business.Repositories;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -22,26 +23,63 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public ActionResult Logar([FromBody] Login login)
-        {   
+        [Route("donator")]
+        public ActionResult LoginDoador([FromBody] Login login)
+        {
             User user = null;
-            Donator donator = _donatorsCollection.Find(Builders<Donator>.Filter.Where(x => x.Email == login.Email && x.Password == login.Password)).SingleOrDefault();
-            Institution institution = _institutionsCollection.Find(Builders<Institution>.Filter.Where(x => x.Email == login.Email && x.Password == login.Password)).SingleOrDefault();
+            Donator donator = _donatorsCollection
+                .Find(
+                    Builders<Donator>.Filter.Where(x => x.Email == login.Email))
+                .SingleOrDefault();
+
             
             if (donator != null) 
-                user = new User() 
-                {
-                    Email=donator.Email, 
-                    Name=donator.Name, 
-                    Role="Doador"
-                };
-            else if (institution != null) 
-                user = new User() 
-                {
-                    Email=institution.Email, 
-                    Name=institution.Name, 
-                    Role="Instituição"
-                };
+            {
+                bool verifyPassword = BC.Verify(login.Password, donator.Password);
+                if (verifyPassword)
+                    user = new User() 
+                    {
+                        Email=donator.Email, 
+                        Name=donator.Name, 
+                        Role="Doador"
+                    };
+            }
+                
+            
+            string token;
+            if (user != null)
+                token =  _jwtService.GenerateToken(user);
+            else
+                return BadRequest();
+
+            return Ok(new {
+                token = token,
+                user = user
+            });
+        }
+
+        [HttpPost]
+        [Route("institution")]
+        public ActionResult LoginInstitution([FromBody] Login login)
+        {   
+            User user = null;
+            Institution institution = _institutionsCollection
+                .Find(
+                    Builders<Institution>.Filter.Where(x => x.Email == login.Email))
+                .SingleOrDefault();
+            
+            if (institution != null) 
+            {
+                bool verifyPassword = BC.Verify(login.Password,institution.Password);
+                if (verifyPassword)
+                    user = new User() 
+                    {
+                        Email=institution.Email, 
+                        Name=institution.Name, 
+                        Role="Instituição"
+                    };
+            }
+                
             
             string token;
             if (user != null)

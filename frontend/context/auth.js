@@ -33,8 +33,8 @@ export const AuthProvider = ({ children }) => {
         })
     }, [])
 
-    async function signIn(data) {
-        const res = await axios.post('http://localhost:5000/auth', data).
+    async function signIn(baseUrl, data) {
+        const res = await axios.post(`${baseUrl}/auth/donator`, data).
         then(res => {
             axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`
 

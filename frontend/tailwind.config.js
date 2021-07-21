@@ -23,6 +23,7 @@ module.exports = {
     extend: {
       borderColor: ['focus'],
       fontWeight: ['hover'],
+      ringWidth: ['hover', 'active'],
     }
   },
   plugins: [

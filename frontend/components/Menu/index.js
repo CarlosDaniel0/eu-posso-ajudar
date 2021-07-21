@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import Logo from '../Logo'
-import Link from 'next/link'
 import User from './user'
 import { findClass } from '../../utils/findClass'
 import AuthContext from '../../context/auth'
+import { LinkButton } from '../UI'
 
 
 // hidden transition duration-500 ease-in-out transform -translate-x-full
@@ -29,38 +29,54 @@ const Menu = () => {
             <div className='context z-30 md:invisible absolute bg-black bg-opacity-20 w-1/3 h-full right-0 float-right hidden transition delay-700 easy-in-out duration-300' onClick={showMenu} />
             <div className='md:block menu-mobile w-2/3 md:w-full h-full absolute md:relative bg-white md:z-0 z-10 transform -translate-x-full md:transform-none transition delay-150 easy-in-out duration-150'>
                 <ul className='text-2xl md:text-base md:flex md:w-2/5 p-4 block md:float-left md:h-20 md:justify-center'>
-                    <Link href='/'>
-                        <li className='md:hidden visible cursor-pointer block py-2 hover:font-bold md:px-4 px-8' onClick={showMenu}>Início</li>
-                    </Link>
-                    <Link href='doacoes'>
-                        <li className='cursor-pointer block md:inline-block py-2 hover:font-bold md:px-4 px-8' onClick={showMenu}>Doações</li>
-                    </Link>
-                    <Link href='informacoes'>
-                        <li className='cursor-pointer block md:inline-block hover:font-bold py-2 md:px-4 px-8' onClick={showMenu}>Informações</li>
-                    </Link>
-                    <Link href='busca'>
-                        <li className='cursor-pointer block md:inline-block hover:font-bold py-2 md:px-4 px-8' onClick={showMenu}>Buscar</li>
-                    </Link>
-                    <Link href='sobre'>
-                        <li className='cursor-pointer block md:inline-block hover:font-bold py-2 md:px-4 px-8' onClick={showMenu}>Sobre</li>
-                    </Link>
+                    <li>
+                        <LinkButton flat href="/" onClick={showMenu} extras="md:px-4 px-8 py-2">
+                            Início
+                        </LinkButton>
+                    </li>
+                    <li>
+                        <LinkButton flat href="/doar" onClick={showMenu} extras="md:px-4 px-8 py-2">
+                            Doar
+                        </LinkButton>
+                    </li>
+                    <li>
+                        <LinkButton flat href="/informacoes" onClick={showMenu} extras="md:px-4 px-8 py-2">
+                            Informações
+                        </LinkButton>
+                    </li>
+                    <li>
+                        <LinkButton flat href="/busca" onClick={showMenu} extras="md:px-4 px-8 py-2">
+                            Busca
+                        </LinkButton>
+                    </li>
+                    <li>
+                        <LinkButton flat href="/sobre" onClick={showMenu} extras="md:px-4 px-8 py-2">
+                            Sobre
+                        </LinkButton>
+                    </li>
                 </ul>
                 <ul className='text-2xl md:text-base md:flex md:w-2/5 block p-4 md:float-left md:bg-blue-450 md:h-20 md:justify-center'>
                     
                     {isLoading && <p>Loading...</p>}
                     {!isLoading && !signed && (
                     <>
-                        <Link href='entrar'>
-                            <li className='md:text-white block cursor-pointer hover:font-bold md:inline-block py-2 md:px-4 px-8' onClick={showMenu}>Entrar</li>
-                        </Link>
-                        <Link href='cadastrar'>
-                            <li className='md:text-white block md:hover:bg-white hover:text-black cursor-pointer md:inline-block py-2 md:px-4 px-8 md:rounded-xl md:border' onClick={showMenu}>Cadastrar</li>
-                        </Link>
+                        <li>
+                            <LinkButton href='/entrar' onClick={showMenu} textColor="white" flat extras="md:px-4 px-8 py-2">
+                                Entrar
+                            </LinkButton>
+                        </li>
+                        <li>
+                            <LinkButton href="/cadastrar" onClick={showMenu} hoverText='black' textColor="white" button color="transparent" mobileFlat border='white' hover='white' extras="md:px-4 px-8 py-2">
+                                Cadastrar
+                            </LinkButton>
+                        </li>
                     </>
                     )}
                     {!isLoading && signed && (
                         <User constrols={showMenu} />
-                    )}
+                        ) 
+                    }
+
                 </ul>
             </div>
         </div>

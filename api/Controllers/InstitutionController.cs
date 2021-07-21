@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using BC = BCrypt.Net.BCrypt;
 
 namespace api.Controllers
 {
@@ -12,20 +17,103 @@ namespace api.Controllers
     [Route("institution")]
     public class InstitutionController:ControllerBase
     {
+        private readonly IConfiguration _config;
         Data.MongoDBContext _mongoDB;
         IMongoCollection<Institution> _institutionsCollection;
-        public InstitutionController(Data.MongoDBContext mongoDB)
+        public InstitutionController(Data.MongoDBContext mongoDB, IConfiguration configuration)
         {
             _mongoDB = mongoDB;
+            _config = configuration;
             _institutionsCollection = _mongoDB.DB.GetCollection<Institution>(typeof(Institution).Name.ToLower());
         }
 
         
         [HttpPost]
-        public ActionResult PostInstitution([FromBody] Institution institution)
+        public async Task<ActionResult> PostInstitution([FromBody] Institution institution)
         {
-            _institutionsCollection.InsertOne(institution);
-            return Created("", "Instituição adicionada com sucesso!");
+            // institution.Id = ObjectId.GenerateNewId().ToString();
+            string hashPassword = BC.HashPassword(institution.Password);
+            institution.Password = hashPassword;
+            
+            await _institutionsCollection.InsertOneAsync(institution);
+            
+            FilterDefinition<Institution> filter = Builders<Institution>.Filter.Where(x => x.Email == institution.Email && x.Password == institution.Password);
+            
+            Institution getInstitution = await _institutionsCollection.Find(filter).FirstOrDefaultAsync();
+
+            return Created("", new {
+                Status = 201,                
+                Message = "Instituição adicionada com sucesso!",
+                Data = new {
+                    InsertedId = getInstitution.Id
+                }
+            });
+        }
+
+        [HttpPatch]
+        [Route("{id}")]
+        public ActionResult PatchInstitution(string id, [FromBody] Institution data)
+        {
+            FilterDefinition<Institution> filter = Builders<Institution>.Filter.Where(x => x.Id == id);
+            Institution institution = _institutionsCollection.Find(filter).FirstOrDefault();
+            
+            institution.Name = data.Name;
+            institution.WebSite = data.WebSite;
+            institution.Services = data.Services;
+            institution.Bio = data.Bio;
+            institution.StartDate = data.StartDate;
+            
+            Console.WriteLine($"{institution}");
+            _institutionsCollection.ReplaceOneAsync(filter, institution);
+            return Ok("Instituição Atualizada com sucesso!");
+        }
+
+        [HttpPost]
+        [Route("{id}/profile")]
+        public async Task<ActionResult> PostProfilePictureInstitution(string id, IFormFile profile_pic)
+        {
+            int limit = 3 * 1024 * 1024; // 3 Mb 
+            
+            if (profile_pic.Length > limit) {
+                return BadRequest("O arquivo excedeu o tamanho máximo");
+            }
+
+            var filePath = Path.Combine(_config["StoredFilesPath"], $"{Path.GetRandomFileName()}.png");
+            using (var stream = System.IO.File.Create(filePath))
+            {
+                await profile_pic.CopyToAsync(stream);
+            }
+
+            return Ok(new {
+                status = 200,
+                upload = "success!",
+                profile_pic
+            });
+        }
+
+        [HttpPost]
+        [Route("{id}/images")]
+        public async Task<ActionResult> PostImagesInstitution(string id, List<IFormFile> images)
+        {
+            int limit = 3 * 1024 * 1024; // 3 Mb 
+            
+            foreach (var file in images) {
+                if (file.Length > limit) {
+                    return BadRequest("O arquivo excedeu o tamanho máximo");
+                }
+
+                var filePath = Path.Combine(_config["StoredFilesPath"], $"{Path.GetRandomFileName()}.png");
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await file.CopyToAsync(stream);
+                }
+            }
+
+            return Ok(new {
+                status = 200,
+                upload = "success!",
+                images
+            });
         }
 
         [HttpGet]

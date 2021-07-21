@@ -7,11 +7,12 @@ namespace api.Models
 {
     public class Institution
     {
-        [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; protected set; }
         [BsonElement("name")]
         public string Name { get; set; }
+        [BsonElement("website")]
+        public string WebSite { get; set; }
         [BsonElement("services")]
         public List<string> Services { get; set; }
         [BsonElement("bio")]
@@ -21,7 +22,7 @@ namespace api.Models
         [BsonElement("profile_pic")]
         public string ProfilePic { get; set; }
         [BsonElement("start_date")]
-        public DateTime StartDate { get; set; }
+        public string StartDate { get; set; }
         [BsonElement("classification")]
         public int Classification { get; protected set; }
         [BsonElement("email")]
